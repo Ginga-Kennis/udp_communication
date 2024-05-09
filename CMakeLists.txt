@@ -19,14 +19,12 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(udp_sender src/udp_sender.cpp)
+add_library(base_udp src/base_udp.cpp)
 
-add_dependencies(udp_sender ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(sender_node src/sender_node.cpp)
+add_dependencies(sender_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(sender_node base_udp ${catkin_LIBRARIES})
 
-target_link_libraries(udp_sender ${catkin_LIBRARIES})
-
-add_executable(udp_receiver src/udp_receiver.cpp)
-
-add_dependencies(udp_receiver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-target_link_libraries(udp_receiver ${catkin_LIBRARIES})
+add_executable(receiver_node src/sender_node.cpp)
+add_dependencies(receiver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(receiver_node base_udp ${catkin_LIBRARIES})
