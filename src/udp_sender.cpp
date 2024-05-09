@@ -15,7 +15,7 @@ public:
 
 private:
     int sock;
-    struct sockaddr_in addr;
+    struct sockaddr_in remote_addr;
     int n;
 
     ros::NodeHandle nh_;
@@ -29,9 +29,9 @@ UdpSender::UdpSender(const std::string& ip, int port) {
         exit(EXIT_FAILURE);  // ソケット作成に失敗した場合は終了
     }
 
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = inet_addr(ip.c_str());
+    remote_addr.sin_family = AF_INET;
+    remote_addr.sin_port = htons(port);
+    remote_addr.sin_addr.s_addr = inet_addr(ip.c_str());
 
     timer_ = nh_.createTimer(ros::Duration(0.01), &UdpSender::timerCallback, this);
 }
@@ -41,9 +41,9 @@ UdpSender::~UdpSender() {
 }
 
 void UdpSender::timerCallback(const ros::TimerEvent& event){
-    const char* message = "HELLO";
+    const char* message = "FUCK YOU!!!!!";
     int len = strlen(message);
-    int n = sendto(sock, message, len, 0, (struct sockaddr *)&addr, sizeof(addr));
+    int n = sendto(sock, message, len, 0, (struct sockaddr *)&remote_addr, sizeof(remote_addr));
     if (n < 0) {
         std::cout << "Failed to send packet" << std::endl;
     }
@@ -54,8 +54,8 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "udp_sender_node");
 
-    std::string ip = "127.0.0.1";
-    int port = 4001;
+    std::string ip = "192.168.2.101"; // 相手側のIPアドレス
+    int port = 8888; // 相手側のポート番号
 
     UdpSender sender(ip, port);
 

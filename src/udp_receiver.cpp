@@ -16,7 +16,7 @@ public:
 
 private:
     int sock;
-    struct sockaddr_in addr;
+    struct sockaddr_in local_addr;
     ros::NodeHandle nh_;
     ros::Timer timer_;
 };
@@ -28,12 +28,12 @@ UdpReceiver::UdpReceiver(int port) {
         exit(EXIT_FAILURE);
     }
 
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = INADDR_ANY;
+    memset(&local_addr, 0, sizeof(local_addr));
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_port = htons(port);
+    local_addr.sin_addr.s_addr = INADDR_ANY; // 任意のアドレスからのデータを受け付ける
 
-    if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+    if (bind(sock, (struct sockaddr *)&local_addr, sizeof(local_addr)) < 0) {
         std::cerr << "Failed to bind socket" << std::endl;
         close(sock);
         exit(EXIT_FAILURE);
@@ -69,7 +69,7 @@ void UdpReceiver::timerCallback(const ros::TimerEvent& event) {
 int main(int argc, char** argv) {
     ros::init(argc, argv, "udp_receiver_node");
 
-    int port = 4001;
+    int port = 4001; // 受信するポート番号
     UdpReceiver receiver(port);
 
     ros::spin();
