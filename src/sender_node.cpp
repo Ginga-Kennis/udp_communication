@@ -8,14 +8,14 @@ public:
     void timerCallback(const ros::TimerEvent& event);
 
 private:
-    BaseUdp* baseUdp_; // Pointer to the singleton instance of BaseUdp
+    BaseUdp* baseUdp_; // Pointer to the BaseUdp instance
     ros::NodeHandle nh_;
     ros::Timer timer_;
 };
 
 UdpSender::UdpSender(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port) {
-    // Get singleton instance (no binding needed for sender)
-    baseUdp_ = &BaseUdp::getInstance(local_ip, local_port, remote_ip, remote_port);
+    // Create a new BaseUdp instance (no binding needed for sender)
+    baseUdp_ = new BaseUdp(local_ip, local_port, remote_ip, remote_port);
 
     // Setup the timer (calls the callback every second)
     timer_ = nh_.createTimer(ros::Duration(1.0), &UdpSender::timerCallback, this);

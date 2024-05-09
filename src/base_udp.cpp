@@ -6,11 +6,10 @@
 #include <cstring>
 #include <iostream>
 #include <fcntl.h>
-#include <memory>
 
 class BaseUdp {
 public:
-    static BaseUdp& getInstance(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port);
+    BaseUdp(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port);
     ~BaseUdp();
 
     void udp_send(const std::string& message);
@@ -18,10 +17,6 @@ public:
     void udp_bind();
 
 private:
-    BaseUdp(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port);
-    BaseUdp(const BaseUdp&) = delete;
-    BaseUdp& operator=(const BaseUdp&) = delete;
-
     int sock;
     struct sockaddr_in remote_addr;
     struct sockaddr_in local_addr;
@@ -50,11 +45,6 @@ BaseUdp::BaseUdp(const std::string& local_ip, int local_port, const std::string&
     // Set socket to non-blocking mode
     int flags = fcntl(sock, F_GETFL, 0);
     fcntl(sock, F_SETFL, flags | O_NONBLOCK);
-}
-
-BaseUdp& BaseUdp::getInstance(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port) {
-    static BaseUdp instance(local_ip, local_port, remote_ip, remote_port);
-    return instance;
 }
 
 BaseUdp::~BaseUdp() {
