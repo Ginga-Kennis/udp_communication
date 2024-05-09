@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include "base_udp.cpp" // BaseUdp class
+#include "base_udp.cpp" // Include the BaseUdp class
 #include <string>
 
 class UdpReceiver {
@@ -8,23 +8,22 @@ public:
     void timerCallback(const ros::TimerEvent& event);
 
 private:
-    BaseUdp* baseUdp_; // Pointer to the BaseUdp instance
+    BaseUdp baseUdp_; // BaseUdp instance
     ros::NodeHandle nh_;
     ros::Timer timer_;
 };
 
-UdpReceiver::UdpReceiver(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port) {
-    // Create a new BaseUdp instance and bind the UDP socket
-    baseUdp_ = new BaseUdp(local_ip, local_port, remote_ip, remote_port);
-    baseUdp_->udp_bind();
+UdpReceiver::UdpReceiver(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port)
+    : baseUdp_(local_ip, local_port, remote_ip, remote_port) { // Initializing the instance in constructor
+    baseUdp_.udp_bind();
 
     // Setup the timer (calls the callback every second)
-    timer_ = nh_.createTimer(ros::Duration(0.01), &UdpReceiver::timerCallback, this);
+    timer_ = nh_.createTimer(ros::Duration(1.0), &UdpReceiver::timerCallback, this);
 }
 
 void UdpReceiver::timerCallback(const ros::TimerEvent& event) {
     // Receive message in callback
-    baseUdp_->udp_recv();
+    baseUdp_.udp_recv();
 }
 
 int main(int argc, char** argv) {
