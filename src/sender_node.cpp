@@ -8,16 +8,16 @@ public:
     void timerCallback(const ros::TimerEvent& event);
 
 private:
-    BaseUdp& baseUdp_; // BaseUdpのシングルトンインスタンスへの参照
+    BaseUdp baseUdp_; // BaseUdpのインスタンス
     ros::NodeHandle nh_;
     ros::Timer timer_;
 };
 
 UdpSender::UdpSender(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port)
-    : baseUdp_(BaseUdp::getInstance(local_ip, local_port, remote_ip, remote_port)) // BaseUdpインスタンスを取得
+    : baseUdp_(local_ip, local_port, remote_ip, remote_port) // BaseUdpインスタンスを作成
 {
     // タイマーをセットアップ（1秒ごとにコールバックを呼ぶ）
-    timer_ = nh_.createTimer(ros::Duration(0.01), &UdpSender::timerCallback, this);
+    timer_ = nh_.createTimer(ros::Duration(1.0), &UdpSender::timerCallback, this);
 }
 
 void UdpSender::timerCallback(const ros::TimerEvent& event) {
