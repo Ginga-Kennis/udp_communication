@@ -69,7 +69,7 @@ void UdpReceiver::timerCallback(const ros::TimerEvent& event) {
 int main(int argc, char** argv) {
     ros::init(argc, argv, "udp_receiver_node");
 
-    int port = 4001; // 受信するポート番号
+    int port = 8888; // 受信するポート番号
     UdpReceiver receiver(port);
 
     ros::spin();
