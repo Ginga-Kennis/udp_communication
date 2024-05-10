@@ -1,4 +1,3 @@
-#include <ros/ros.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -9,7 +8,7 @@
 
 class BaseUdp {
 public:
-    BaseUdp(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port);
+    BaseUdp(const std::string ip_address, const int port);
     ~BaseUdp();
 
     void udp_send(const std::string& message);
@@ -18,12 +17,10 @@ public:
 
 private:
     int sock;
-    struct sockaddr_in remote_addr;
-    struct sockaddr_in local_addr;
-    ros::NodeHandle nh_;
+    struct sockaddr_in addr;
 };
 
-BaseUdp::BaseUdp(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port) {
+BaseUdp::BaseUdp(const std::string ip_address, const int port) {
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) {
         std::cerr << "Failed to create socket" << std::endl;
@@ -31,20 +28,14 @@ BaseUdp::BaseUdp(const std::string& local_ip, int local_port, const std::string&
     }
 
     // Set remote address
-    memset(&remote_addr, 0, sizeof(remote_addr));
-    remote_addr.sin_family = AF_INET;
-    remote_addr.sin_port = htons(remote_port);
-    remote_addr.sin_addr.s_addr = inet_addr(remote_ip.c_str());
-
-    // Set local address
-    memset(&local_addr, 0, sizeof(local_addr));
-    local_addr.sin_family = AF_INET;
-    local_addr.sin_port = htons(local_port);
-    local_addr.sin_addr.s_addr = inet_addr(local_ip.c_str());
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = inet_addr(ip_address.c_str());
 
     // Set socket to non-blocking mode
-    int flags = fcntl(sock, F_GETFL, 0);
-    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    // int flags = fcntl(sock, F_GETFL, 0);
+    // fcntl(sock, F_SETFL, flags | O_NONBLOCK);
 }
 
 BaseUdp::~BaseUdp() {
@@ -52,7 +43,7 @@ BaseUdp::~BaseUdp() {
 }
 
 void BaseUdp::udp_bind() {
-    if (bind(sock, (struct sockaddr *)&local_addr, sizeof(local_addr)) < 0) {
+    if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         std::cerr << "Failed to bind socket" << std::endl;
         close(sock);
         exit(EXIT_FAILURE);
@@ -61,7 +52,7 @@ void BaseUdp::udp_bind() {
 
 void BaseUdp::udp_send(const std::string& message) {
     int len = message.length();
-    int n = sendto(sock, message.c_str(), len, 0, (struct sockaddr *)&remote_addr, sizeof(remote_addr));
+    int n = sendto(sock, message.c_str(), len, 0, (struct sockaddr *)&addr, sizeof(addr));
     if (n < 0) {
         std::cerr << "Failed to send packet" << std::endl;
     }

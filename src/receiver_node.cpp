@@ -4,7 +4,7 @@
 
 class UdpReceiver {
 public:
-    UdpReceiver(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port);
+    UdpReceiver(const std::string local_ip, const int local_port);
     void timerCallback(const ros::TimerEvent& event);
 
 private:
@@ -13,12 +13,12 @@ private:
     ros::Timer timer_;
 };
 
-UdpReceiver::UdpReceiver(const std::string& local_ip, int local_port, const std::string& remote_ip, int remote_port)
-    : baseUdp_(local_ip, local_port, remote_ip, remote_port) { // Initializing the instance in constructor
+UdpReceiver::UdpReceiver(const std::string local_ip, const int local_port)
+    : baseUdp_(local_ip, local_port) { // Initializing the instance in constructor
     baseUdp_.udp_bind();
 
     // Setup the timer (calls the callback every second)
-    timer_ = nh_.createTimer(ros::Duration(1.0), &UdpReceiver::timerCallback, this);
+    timer_ = nh_.createTimer(ros::Duration(0.01), &UdpReceiver::timerCallback, this);
 }
 
 void UdpReceiver::timerCallback(const ros::TimerEvent& event) {
@@ -32,11 +32,9 @@ int main(int argc, char** argv) {
     // Node parameters
     std::string local_ip = "192.168.2.100";
     int local_port = 8888;
-    std::string remote_ip = "192.168.2.101";
-    int remote_port = 8888;
 
     // Create UdpReceiver instance
-    UdpReceiver udpReceiver(local_ip, local_port, remote_ip, remote_port);
+    UdpReceiver udpReceiver(local_ip, local_port);
 
     // Main loop
     ros::spin();
